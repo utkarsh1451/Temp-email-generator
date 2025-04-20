@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporary Mail Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f7fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #444;
+            flex-direction: column;
+            background-color: #eef2f7;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #3a3b3c;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 2px;
+            animation: slideIn 1s ease-out;
+        }
+
+        /* Animation for header */
+        @keyframes slideIn {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Button Styles */
+        button {
+            background-color: #6c63ff;
+            color: white;
+            padding: 18px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #5a50e6;
+            transform: scale(1.05);
+        }
+
+        /* Copy message styles */
+        .copy-message {
+            background-color: #28a745;
+            color: white;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 8px;
+            display: none;
+            font-size: 16px;
+            animation: fadeInMessage 0.5s ease-in-out;
+        }
+
+        @keyframes fadeInMessage {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* History and Inbox styles */
+        .history, .inbox {
+            margin-top: 30px;
+            padding: 15px;
+            height: 150px;
+            overflow-y: auto;
+            text-align: left;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #f1f3f5;
+            color: #333;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        li:hover {
+            background-color: #e1e2e6;
+            transform: scale(1.02);
+        }
+
+        .inbox-message {
+            background-color: #ffcc00;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Temporary Email Generator</h1>
+    <div class="container">
+        <button onclick="generateTempEmail()">Generate Temp Email</button>
+        <p id="email">Your Temp Email: </p>
+        <button id="copyBtn" onclick="copyEmail()" style="display: none;">Copy Email</button>
+
+        <div class="copy-message" id="copyMessage">Email copied to clipboard!</div>
+
+        <div class="history">
+            <h3>Email History</h3>
+            <ul id="history"></ul>
+        </div>
+
+        <div class="inbox">
+            <h3>Inbox</h3>
+            <div id="inboxMessages"></div>
+        </div>
+    </div>
+
+    <script>
+        var inboxMessages = [];
+
+        // Sound effect
+        var copySound = new Audio('https://www.soundjay.com/button/beep-07.wav'); // You can change the link to your custom sound file
+
+        function generateTempEmail() {
+            var tempEmail = "temp" + Math.floor(Math.random() * 1000000) + "@tempmail.com";
+            document.getElementById("email").innerText = "Your Temp Email: " + tempEmail;
+
+            // Show Copy Button
+            document.getElementById("copyBtn").style.display = "inline-block";
+
+            // Save email to local storage
+            var emailHistory = JSON.parse(localStorage.getItem("emailHistory")) || [];
+            emailHistory.push(tempEmail);
+            localStorage.setItem("emailHistory", JSON.stringify(emailHistory));
+
+            // Display history
+            displayHistory();
+
+            // Simulate a new email received in the inbox
+            simulateInboxMessage(tempEmail);
+        }
+
+        function simulateInboxMessage(tempEmail) {
+            // Random email message for the generated temp email
+            var randomMessage = "New message for " + tempEmail + " at " + new Date().toLocaleTimeString();
+            inboxMessages.push(randomMessage);
+
+            // Update inbox display
+            displayInboxMessages();
+        }
+
+        function copyEmail() {
+            var email = document.getElementById("email").innerText.replace("Your Temp Email: ", "");
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(email).then(function() {
+                // Play the sound effect
+                copySound.play();
+
+                // Show the confirmation message
+                var copyMessage = document.getElementById("copyMessage");
+                copyMessage.style.display = "block";  // Show the message
+
+                // Hide the message after 3 seconds
+                setTimeout(function() {
+                    copyMessage.style.display = "none";  // Hide the message after 3 seconds
+                }, 3000);
+            }).catch(function() {
+                // Handle any error (if clipboard permission is denied, etc.)
+                alert("Failed to copy the email!");
+            });
+        }
+
+        function displayHistory() {
+            var emailHistory = JSON.parse(localStorage.getItem("emailHistory")) || [];
+            var historyList = document.getElementById("history");
+            historyList.innerHTML = ""; // Clear previous history
+
+            emailHistory.forEach(function(email) {
+                var listItem = document.createElement("li");
+                listItem.innerText = email;
+                historyList.appendChild(listItem);
+            });
+        }
+
+        function displayInboxMessages() {
+            var inboxContainer = document.getElementById("inboxMessages");
+            inboxContainer.innerHTML = ""; // Clear previous inbox messages
+
+            inboxMessages.forEach(function(message) {
+                var inboxMessage = document.createElement("div");
+                inboxMessage.classList.add("inbox-message");
+                inboxMessage.innerText = message;
+                inboxContainer.appendChild(inboxMessage);
+            });
+        }
+
+        // Display history on page load
+        displayHistory();
+    </script>
+
+</body>
+</html>
